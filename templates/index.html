@@ -3,55 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Загрузка файлов</title>
+    <title>Обработка файлов</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
-    <div class="container h-100 d-flex align-items-center justify-content-center" style="min-height: 100vh;">
-        <div class="row w-100">
-            <div class="col-12">
-                <div class="card bg-dark shadow-lg">
-                    <div class="card-body p-4">
-                        <h2 class="text-center text-light mb-4">
-                            <i class="fas fa-cloud-upload-alt me-2"></i>
-                            Загрузка файлов
-                        </h2>
-                        
-                        <form id="uploadForm" class="small">
-                            <div class="mb-3">
-                                <div class="input-group">
-                                    <input type="file" 
-                                           class="form-control form-control-sm" 
-                                           id="fileInput" 
-                                           accept=".rar,.zip,.csv"
-                                           required>
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-upload me-2"></i>
-                                        Загрузить
-                                    </button>
-                                </div>
-                                <div class="form-text text-light">
-                                    Поддерживаемые форматы: RAR, ZIP, 7Z, CSV
-                                </div>
-                            </div>
-                        </form>
+<p></p>
+<p></p>
+<p></p>
+<div class="container h-100 d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="row w-100">
+        <div class="col-12 text-center mb-4">
+            <h3 class="text-light">Золотое сечение файлов</h2>
+        </div>
+        <p></p>
+        <p></p>
+        <p></p>
+        <!-- Первая колонка -->
+        <div class="col-md-4">
+            <h2 class="text-center text-light mb-4">Загрузите файлы</h2>
+            <div class="card upload-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-upload fa-3x mb-3"></i>
+                    <p>Выберите или перетащите файл</p>
+                    <form id="uploadForm">
+                        <input type="file" id="fileInput" class="d-none" multiple accept=".csv,.rar,.zip">
+                        <button type="button" class="btn btn-primary"
+                                onclick="document.getElementById('fileInput').click()">
+                            Выбрать файлы
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="d-flex align-items-center mt-3">
+                <button type="button" class="btn btn-primary me-3" id="linkFilesBtn">Связать файлы</button>
+                <div class="dots-loader d-none" id="linkingLoader">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Средняя колонка со стрелкой -->
+        <div class="col-md-4 d-flex align-items-center justify-content-center">
+            <i class="fas fa-arrow-right fa-3x text-light"></i>
+        </div>
+
+        <!-- Третья колонка -->
+        <div class="col-md-4">
+            <h2 class="text-center text-light mb-4">Готовые файлы</h2>
+            <div class="card upload-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-download fa-3x mb-3"></i>
+                    <p>Скачать обработанные файлы</p>
+                    <button type="button" class="btn btn-primary" id="downloadBtn">
+                        Скачать файлы
+                    </button>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="button" class="btn btn-primary flex-grow-1" id="viewDataBtn">Посмотреть готовые данные
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<!-- Новая секция с очередью файлов -->
+<p></p>
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-12">
+            <h3 class="text-light text-start mb-3">Очередь файлов</h3>
+            <button class="btn btn-danger mb-3" id="clearFilesBtn"
+                    style="background-color: #302f35 !important; border: none !important;">
+                <i class="bi bi-trash"></i> Стереть все файлы
+            </button>
+            <div class="upload-card" style="min-height: 30vh;">
+                <div class="card-body bg-transparent" style="background-color: transparent !important;">
+                    <div class="table-responsive">
+                        <table class="table table-borderless" id="filesQueue">
+                            <tbody>
+                            <!-- Файлы будут добавляться сюда динамически -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="notification" class="notification"></div>
-
-    <footer class="fixed-bottom text-center text-light p-2">
-        <small>&copy; 2024 OptonGroup</small>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
-    <script src="/static/js/animations.js"></script>
-    <script src="/static/js/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/animations.js"></script>
+<script src="/static/js/script.js"></script>
 </body>
 </html>

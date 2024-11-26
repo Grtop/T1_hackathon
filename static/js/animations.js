@@ -1,62 +1,88 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // Основная timeline для анимации загрузки
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация начальных анимаций
     const tl = gsap.timeline();
 
-    // Анимация появления body
-    tl.to("body", {
-        opacity: 1,
-        duration: 0.5,
-        ease: "power2.inOut"
-    });
-
-    // Анимация заголовка
-    tl.to("h2", {
-        opacity: 1,
-        y: 0,
+    tl.from('h2.text-light', {
+        y: -50,
+        opacity: 0,
         duration: 0.6,
-        ease: "back.out(1.7)"
-    }, "-=0.3");
-
-    // Анимация формы
-    tl.to("#uploadForm", {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power2.out"
-    }, "-=0.3");
-
-    // Анимация футера
-    tl.to("footer", {
-        opacity: 0.7,
+        ease: 'power2.out'
+    })
+    .from('h3.text-light', {
+        x: -30,
+        opacity: 0,
         duration: 0.4,
-        ease: "power2.out"
-    }, "-=0.3");
-
-    // Функция для показа уведомлений
-    window.showNotification = (message, isError = false) => {
-        const notification = document.getElementById("notification");
-        if (!notification) return; // Проверка на существование элемента
-
-        notification.textContent = message;
-        notification.style.backgroundColor = isError ? "#dc3545" : "#198754";
-        notification.style.display = "block";
-
-        gsap.fromTo(notification, 
-            { x: 100, opacity: 0 },
-            { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
-        );
-
-        // Автоматически скрываем уведомление через 3 секунды
-        setTimeout(() => {
-            gsap.to(notification, {
-                x: 100,
-                opacity: 0,
-                duration: 0.5,
-                ease: "power2.in",
-                onComplete: () => {
-                    notification.style.display = "none";
-                }
-            });
-        }, 3000);
-    };
+        ease: 'power2.out'
+    }, '-=0.2')
+    .from('.col-md-4:nth-child(1)', {
+        x: -50,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.out'
+    }, '-=0.3')
+    .from('.col-md-4:nth-child(1) .upload-card', {
+        y: 30,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.out'
+    }, '-=0.3')
+    .from('.fa-arrow-right', {
+        scale: 0,
+        opacity: 0,
+        duration: 0.4,
+        ease: 'back.out(1.7)'
+    }, '-=0.3')
+    .from('.col-md-4:nth-child(3)', {
+        x: 50,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.out'
+    }, '-=0.4')
+    .from('.col-md-4:nth-child(3) .upload-card', {
+        y: 30,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.out'
+    }, '-=0.3')
+    .from('#linkFilesBtn, #viewDataBtn', {
+        y: 20,
+        opacity: 0,
+        duration: 0.4,
+        stagger: 0.2,
+        ease: 'power2.out'
+    }, '-=0.2')
+    .from('#clearFilesBtn', {
+        x: -20,
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.out'
+    }, '-=0.2')
+    .from('.container:nth-child(2) .upload-card', {
+        y: 50,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.out'
+    }, '-=0.2');
 });
+
+// Функция анимации появления нового файла
+function animateFileAppearance(row) {
+    gsap.from(row, {
+        y: 20,
+        opacity: 0,
+        duration: 0.4,
+        ease: 'power2.out'
+    });
+}
+
+// Функция анимации удаления файлов
+function animateFilesClear(rows, onComplete) {
+    gsap.to(rows, {
+        y: -20,
+        opacity: 0,
+        duration: 0.3,
+        stagger: 0.1,
+        ease: 'power2.in',
+        onComplete: onComplete
+    });
+}

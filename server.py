@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
 import patoolib
+import pandas as pd
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -22,32 +23,50 @@ app.add_middleware(
 async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/view_data", response_class=HTMLResponse)
+async def view_data(request: Request):
+    try:
+        # Поиск CSV файла в директории files
+        csv_files = [f for f in os.listdir("files") if f.endswith('.csv')]
+        if not csv_files:
+            raise HTTPException(status_code=404, detail="CSV файл не найден")
+        df = pd.read_csv(f"files/{csv_files[0]}")
+        df = df.head(5)
+
+        table_html = df.to_html(classes=['table', 'table-striped', 'table-hover', 'table-dark', 'sortable'],
+                               index=False,
+                               border=0,
+                               table_id='dataTable')
+
+        return templates.TemplateResponse(
+            "view_data.html",
+            {
+                "request": request,
+                "table": table_html,
+                "columns": df.columns.tolist()
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
     if not file.filename.endswith(('.rar', '.zip', '.7z', '.csv')):
         raise HTTPException(status_code=400, detail="Только файлы RAR, ZIP, 7Z и CSV разрешены.")
     
     try:
-        # Создаем директорию files, если она не существует
         os.makedirs("files", exist_ok=True)
-        
         file_location = f"files/{file.filename}"
         
-        # Читаем файл полностью перед записью
-        file_content = await file.read()
-        with open(file_location, "wb") as f:
-            f.write(file_content)
-        
-        if file.filename.endswith(('.rar', '.zip')):
-            try:
-                patoolib.extract_archive(file_location, outdir="files")
-                os.remove(file_location)
-                return {"info": f"Файл '{file.filename}' загружен и разархивирован успешно."}
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Ошибка распаковки: {str(e)}")
-        
-        else:  # CSV файл
-            return {"info": f"Файл '{file.filename}' загружен успешно."}
+        with open(file_location, "wb+") as file_object:
+            file_object.write(await file.read())
+
+        # Разархивирование если это архив
+        if file.filename.endswith(('.rar', '.zip', '.7z')):
+            patoolib.extract_archive(file_location, outdir="files")
+            os.remove(file_location)  # Удаляем архив после распаковки
+
+        return {"filename": file.filename, "status": "success"}
             
     except Exception as e:
         if os.path.exists(file_location):
