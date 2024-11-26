@@ -10,6 +10,7 @@ import pandas as pd
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+print('penis')
 
 app.add_middleware(
     CORSMiddleware,
