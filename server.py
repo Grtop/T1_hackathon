@@ -4,9 +4,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
-import rarfile
-import zipfile
-import py7zr
+import patoolib
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -40,27 +38,13 @@ async def upload_file(file: UploadFile = File(...)):
         with open(file_location, "wb") as f:
             f.write(file_content)
         
-        if file.filename.endswith('.rar'):
-            # Проверяем, установлен ли UnRAR
-            if not rarfile.UNRAR_TOOL:
-                raise HTTPException(status_code=500, detail="UnRAR не установлен в системе")
-                
-            with rarfile.RarFile(file_location) as rf:
-                rf.extractall("files")
-            os.remove(file_location)
-            return {"info": f"Файл '{file.filename}' загружен и разархивирован успешно."}
-        
-        elif file.filename.endswith('.zip'):
-            with zipfile.ZipFile(file_location) as zf:
-                zf.extractall("files")
-            os.remove(file_location)
-            return {"info": f"Файл '{file.filename}' загружен и разархивирован успешно."}
-            
-        elif file.filename.endswith('.7z'):
-            with py7zr.SevenZipFile(file_location, mode='r') as sz:
-                sz.extractall("files")
-            os.remove(file_location)
-            return {"info": f"Файл '{file.filename}' загружен и разархивирован успешно."}
+        if file.filename.endswith(('.rar', '.zip')):
+            try:
+                patoolib.extract_archive(file_location, outdir="files")
+                os.remove(file_location)
+                return {"info": f"Файл '{file.filename}' загружен и разархивирован успешно."}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Ошибка распаковки: {str(e)}")
         
         else:  # CSV файл
             return {"info": f"Файл '{file.filename}' загружен успешно."}
