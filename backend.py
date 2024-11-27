@@ -10,7 +10,7 @@ class backend:
     def __init__(self, file_name):
         self.file_name = file_name
         print('r')
-        self.data = pd.read_csv(file_name)
+        self.data = pd.read_csv(file_name, low_memory=False)
         print('p')
         self.process_data()
         print('m')
@@ -183,31 +183,18 @@ class backend:
         self.used[ind] = 1
         
         for i in range(47):
-            if self.data_list[ind-1][-1] < self.ind_of_gold_row[i] and str(self.data_list[ind-1][i]) != 'nan':
-                self.gold_row[i] = self.data_list[ind-1][i]
-                self.ind_of_gold_row[i] = self.data_list[ind-1][-1]
+            if self.data_list[ind][-1] < self.ind_of_gold_row[i] and str(self.data_list[ind][i]) != 'nan':
+                self.gold_row[i] = self.data_list[ind][i]
+                self.ind_of_gold_row[i] = self.data_list[ind][-1]
 
         for el in self.list_of_link[ind]:
             if self.used[el] == 0:
                 self.dfs(el)
     
     
-    def merge_data(self):
-        data_inn = {}
-        data_snils = {}
-        data_fio_plus_phone = {}
-        data_email = {}
-        data_fio_plus_bday = {}
-        data_vc = {}
-        data_tg = {}
-        data_fio_addr = {}
-        data_loanbegin_loanend = {}
-        data_phone_plus_addr = {}
-        data_bday_plus_addr = {}
-        data_phone_plus_bday = {}
-        
+    def merge_data(self):        
         columns = self.data.columns
-        self.data['index'] = range(1, len(self.data) + 1)
+        self.data['index'] = range(len(self.data))
         
         self.data_list = self.data.values.tolist()
         
@@ -217,6 +204,7 @@ class backend:
             [18],
             [19],
             [21],
+            [22]
         ]
         lst2 = [
             [4, 22],
@@ -229,23 +217,23 @@ class backend:
         ]
         
         self.list_of_link = [
-            [] for i in range(len(self.data)+1)
+            [] for i in range(len(self.data))
         ]
         
         for el in lst1:
+            print(el)
             self.data_list.sort(key=lambda x: str(x[el[0]]))
             for i in range(len(self.data_list)-1):
-                row = self.data_list[i]
-                n_row = self.data_list[i+1]
+                if str(self.data_list[i][0]) == '738145160' or str(self.data_list[i][0]) == '844438277':
+                    q = 0
                 if self.data_list[i][el[0]] == self.data_list[i+1][el[0]] and str(self.data_list[i][el[0]]) != 'nan':
                     self.list_of_link[self.data_list[i][-1]].append(self.data_list[i+1][-1])
                     self.list_of_link[self.data_list[i+1][-1]].append(self.data_list[i][-1])
                     
         for el in lst2:
+            print(el)
             self.data_list.sort(key=lambda x: [str(x[el[0]]), str(x[el[1]])])
             for i in range(len(self.data_list)-1):
-                row = self.data_list[i]
-                n_row = self.data_list[i+1]
                 if self.data_list[i][el[0]] == self.data_list[i+1][el[0]] and self.data_list[i][el[1]] == self.data_list[i+1][el[1]] and str(self.data_list[i][el[0]]) != 'nan' and str(self.data_list[i][el[1]]) != 'nan':
                     self.list_of_link[self.data_list[i][-1]].append(self.data_list[i+1][-1])
                     self.list_of_link[self.data_list[i+1][-1]].append(self.data_list[i][-1])
@@ -253,7 +241,7 @@ class backend:
         self.data_list.sort(key=lambda x: x[-1])
         
         
-        self.used = [0 for i in range(len(self.data)+1)]
+        self.used = [0 for i in range(len(self.data))]
         self.gold_row = ['nan' for i in range(47)]
         self.ind_of_gold_row = [10**9 for i in range(47)]
                 
@@ -267,7 +255,7 @@ class backend:
                 self.dfs(i)
                 lst.append(self.gold_row)
                 
-        with open('output.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        with open('good_files\\first_hundred_rows.csv', 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(columns)
             writer.writerows(lst)
@@ -275,24 +263,24 @@ class backend:
 
 async def all_csv_in_one():
     try:
-        all_data = []
         directory = 'files'
+        csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
         
+        with open(f"{directory}/all.csv","wb") as fout:
+            fout.write('client_id,client_first_name,client_middle_name,client_last_name,client_fio_full,client_bday,client_bplace,client_cityzen,client_resident_cd,client_gender,client_marital_cd,client_graduate,client_child_cnt,client_mil_cd,client_zagran_cd,client_inn,client_snils,client_vip_cd,contact_vc,contact_tg,contact_other,contact_email,contact_phone,addr_region,addr_country,addr_zip,addr_street,addr_house,addr_body,addr_flat,addr_area,addr_loc,addr_city,addr_reg_dt,addr_str,fin_rating,fin_loan_limit,fin_loan_value,fin_loan_debt,fin_loan_percent,fin_loan_begin_dt,fin_loan_end_dt,stream_favorite_show,stream_duration,create_date,update_date,source_cd\n'.encode('utf-8'))
+            for i in range(len(csv_files)):
+                if csv_files[i] == 'all.csv':
+                    continue
+                with open(f"{directory}/{csv_files[i]}", "rb") as f:
+                    next(f)
+                    fout.write(f.read())
+
         for filename in os.listdir(directory):
-            if filename.endswith('.csv'):
-                file_path = os.path.join(directory, filename)
-                df = pd.read_csv(file_path)
-                all_data.append(df)
-        
-        if all_data:
-            combined_df = pd.concat(all_data, ignore_index=True)
-            combined_df.to_csv(os.path.join(directory, 'all.csv'), index=False, encoding='utf-8')
-            for filename in os.listdir(directory):
-                if filename != 'all.csv':
-                    os.remove(os.path.join(directory, filename))
+            if filename != 'all.csv':
+                os.remove(os.path.join(directory, filename))
                     
         return True
-    except Exception:
+    except Exception as e:
         return False
 
 

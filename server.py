@@ -38,7 +38,7 @@ async def root(request: Request):
 @app.get("/view_data", response_class=HTMLResponse)
 async def view_data(request: Request, refresh: bool = Query(False)):
     try:
-        # Если есть кеш и не требуется обновление, возвращаем кешированные данные
+        # If there's cached data and refresh is not requested, return cached data
         if table_cache['html'] is not None and not refresh:
             return templates.TemplateResponse(
                 "view_data.html",
@@ -49,25 +49,32 @@ async def view_data(request: Request, refresh: bool = Query(False)):
                 }
             )
 
-        # Иначе читаем данные заново
+        # Otherwise, read data again
         directory = 'good_files'
         csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
         if not csv_files:
             raise HTTPException(status_code=404, detail="CSV файл не найден")
         
+        # Read CSV file
         df = pd.read_csv(f"{directory}/{csv_files[0]}")
+        
+        # Take only a subset of rows (e.g., first 1000)
         df = df.head(1000)
-        table_html = df.to_html(
-            classes=['table', 'table-striped', 'table-hover', 'table-dark', 'sortable'],
-            index=False,
-            border=0,
-            table_id='dataTable'
-        )
+        
+        # Optimize DataFrame column data types to reduce memory usage
+        for col in df.select_dtypes(include=['object']).columns:
+            unique_ratio = df[col].nunique() / len(df)
+            if unique_ratio < 0.5:  # Convert to 'category' if unique values are relatively few
+                df[col] = df[col].astype('category')
 
-        # Сохраняем в кеш
+        # Use a faster HTML rendering library (jinja2 for templating)
+        table_html = render_html_table(df)
+
+        # Cache the generated table and column names
         table_cache['html'] = table_html
         table_cache['columns'] = df.columns.tolist()
 
+        # Return the rendered response
         return templates.TemplateResponse(
             "view_data.html",
             {
@@ -78,6 +85,26 @@ async def view_data(request: Request, refresh: bool = Query(False)):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+def render_html_table(df):
+    """Custom HTML table generator for faster rendering."""
+    # Generate headers
+    headers = ''.join(f'<th>{col}</th>' for col in df.columns)
+    
+    # Generate rows
+    rows = ''.join(
+        f'<tr>{"".join(f"<td>{val}</td>" for val in row)}</tr>' for row in df.itertuples(index=False)
+    )
+    
+    # Combine into a table with the required classes
+    return f"""
+    <table class="table table-striped table-hover table-dark sortable" id="dataTable" border="0">
+        <thead><tr>{headers}</tr></thead>
+        <tbody>{rows}</tbody>
+    </table>
+    """
+
 
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
