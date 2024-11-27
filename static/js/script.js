@@ -1,13 +1,11 @@
-// Получаем элементы кнопок и загрузчика
 const linkFilesBtn = document.getElementById('linkFilesBtn');
 const linkingLoader = document.getElementById('linkingLoader');
 const viewDataBtn = document.getElementById('viewDataBtn');
 
-// Функция для показа уведомлений
+
 function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     notification.style.display = 'block';
-    
     // Проверяем, доступна ли функция animateNotification
     if (typeof animateNotification === 'undefined') {
         // Простая альтернатива без анимации, если GSAP еще не загрузился
@@ -31,31 +29,36 @@ function showNotification(message, type = 'success') {
     }
 }
 
-// Обработчик события для кнопки связывания файлов
+
 linkFilesBtn.addEventListener('click', function() {
     linkingLoader.classList.remove('d-none');
     linkFilesBtn.disabled = true;
 
-    // Здесь будет ваша логика связывания файлов
-    setTimeout(() => {
+    fetch('/link-files/', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        showNotification('Файлы успешно связаны', 'success');
+    })
+    .catch(error => {
+        showNotification('Ошибка при связывании файлов', 'error');
+    })
+    .finally(() => {
         linkingLoader.classList.add('d-none');
         linkFilesBtn.disabled = false;
-        showNotification('Файлы успешно связаны', 'success');
-    }, 2000); // Замените на реальный запрос к серверу
+    });
 });
 
-// Обработчик события для кнопки просмотра данных
 viewDataBtn.addEventListener('click', function() {
     window.location.href = '/view_data';
 });
 
-// Действия при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('fileInput');
     const filesQueue = document.getElementById('filesQueue');
     const clearFilesBtn = document.getElementById('clearFilesBtn');
 
-    // Функция для получения иконки файла по расширению
     function getFileIcon(extension) {
         const icons = {
             'csv': 'bi-file-earmark-spreadsheet',
@@ -65,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return icons[extension] || 'bi-file-earmark';
     }
 
-    // Функция для форматирования даты
     function formatDate(date) {
         return date.toLocaleString('ru-RU', {
             day: '2-digit',
@@ -76,7 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Функция для добавления файла в очередь
     function addFileToQueue(file) {
         const extension = file.name.split('.').pop().toLowerCase();
         const nameWithoutExt = file.name.replace(`.${extension}`, '');
@@ -105,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
         animateFileAppearance(row);
     }
 
-    // Функция для загрузки существующих файлов
     function loadExistingFiles() {
         const tbody = filesQueue.querySelector('tbody');
         tbody.innerHTML = '';
@@ -126,7 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Функция для удаления файла
     window.deleteFile = function(filename, button) {
         fetch(`/files/${filename}`, {
             method: 'DELETE'
@@ -138,10 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.remove();
             });
             showNotification('Файл успешно удален', 'success');
-        });
+        })
     };
 
-    // Обработчик события изменения файла
     fileInput.addEventListener('change', function(e) {
         const files = Array.from(this.files);
         
@@ -167,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Обработчик события для кнопки очистки файлов
     clearFilesBtn.addEventListener('click', function() {
         const rows = filesQueue.querySelectorAll('tbody tr');
 
@@ -190,3 +187,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Загрузка существующих файлов при загрузке страницы
     loadExistingFiles();
 });
+
+

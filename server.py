@@ -8,6 +8,7 @@ import patoolib
 import pandas as pd
 from datetime import datetime
 import re
+from backend import get_good_file
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -28,20 +29,19 @@ async def root(request: Request):
 @app.get("/view_data", response_class=HTMLResponse)
 async def view_data(request: Request):
     try:
-        # Поиск CSV файла в директории files
+        # Поиск CSV файла в директории good_files
         directory = 'good_files'
         csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
         if not csv_files:
             raise HTTPException(status_code=404, detail="CSV файл не найден")
         df = pd.read_csv(f"{directory}/{csv_files[0]}")
-
+        df = df.head(1000)
         table_html = df.to_html(
             classes=['table', 'table-striped', 'table-hover', 'table-dark', 'sortable'],
             index=False,
             border=0,
             table_id='dataTable'
         )
-
         return templates.TemplateResponse(
             "view_data.html",
             {
@@ -139,6 +139,7 @@ async def delete_file(filename: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.post("/clear-files/")
 async def clear_files():
     try:
@@ -147,6 +148,23 @@ async def clear_files():
             if os.path.isfile(file_path):
                 os.remove(file_path)
         return {"status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/link-files/")
+async def link_files():
+    try:
+        # Проверяем наличие файлов в директории
+        directory = 'files'
+        csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
+        if not csv_files:
+            return {"status": "error", "message": "Файлы для связывания не найдены. Пожалуйста, загрузите файлы сначала."}
+        os.makedirs("good_files", exist_ok=True)
+        if await get_good_file():
+            return {"status": "success", "message": "Файлы успешно связаны"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
