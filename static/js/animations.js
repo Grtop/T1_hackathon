@@ -5,62 +5,62 @@ document.addEventListener('DOMContentLoaded', function() {
     tl.from('h2.text-light', {
             y: -50,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'power2.out'
         })
         .from('h3.text-light', {
             x: -30,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'power2.out'
         }, '-=0.2')
         .from('#upload-column', {
             x: -50,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'power2.out'
         }, '-=0.3')
         .from('#upload-column .upload-card', {
             y: 30,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'power2.out'
         }, '-=0.3')
         .from('.arrow-right', {
             scale: 0,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'back.out(1.7)'
         }, '-=0.3')
         .from('#download-column', {
             x: 50,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'power2.out'
         }, '-=0.4')
         .from('#download-column .upload-card', {
             y: 30,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'power2.out'
         }, '-=0.3')
         .from('#linkFilesBtn, #viewDataBtn', {
             y: 20,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             stagger: 0.2,
             ease: 'power2.out'
         }, '-=0.2')
         .from('#clearFilesBtn', {
             x: -20,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'power2.out'
         }, '-=0.2')
         .from('#filesQueue', {
             y: 50,
             opacity: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'power2.out'
         }, '-=0.2');
 });
@@ -70,7 +70,7 @@ function animateFileAppearance(row) {
     gsap.from(row, {
         y: 20,
         opacity: 0,
-        duration: 0.1,
+        duration: 0.3,
         ease: 'power2.out'
     });
 }
@@ -80,7 +80,7 @@ function animateFilesClear(rows, onComplete) {
     gsap.to(rows, {
         y: -20,
         opacity: 0,
-        duration: 0.1,
+        duration: 0.3,
         stagger: 0.1,
         ease: 'power2.in',
         onComplete: onComplete
@@ -98,7 +98,7 @@ function animateNotification(notification) {
         {
             opacity: 1,
             x: 0,
-            duration: 0.1,
+            duration: 0.3,
             ease: 'power2.out',
             onComplete: () => {
                 // Автоматическое скрытие через 3 секунды
@@ -106,7 +106,7 @@ function animateNotification(notification) {
                     opacity: 0,
                     x: 100,
                     delay: 3,
-                    duration: 0.1,
+                    duration: 0.3,
                     ease: 'power2.in',
                     onComplete: () => {
                         notification.style.visibility = 'hidden';

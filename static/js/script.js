@@ -42,7 +42,9 @@ linkFilesBtn.addEventListener('click', function() {
     .then(response => response.json())
     .then(data => {
         showNotification('Файлы успешно связаны', 'success');
-        filesWereLinked = true; // Устанавливаем флаг после успешного связывания
+        filesWereLinked = true;
+        // Меняем текст после успешного связывания
+        document.querySelector('.download-card p').textContent = 'Скачать output.csv';
     })
     .catch(error => {
         showNotification('Ошибка при связывании файлов', 'error');
@@ -218,6 +220,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     downloadBtn.addEventListener('click', function() {
+        showNotification('Загрузка началась', 'success'); // Уведомление о начале загрузки
+
         fetch('/download/')
             .then(response => {
                 if (!response.ok) {
