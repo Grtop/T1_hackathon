@@ -221,8 +221,6 @@ class backend:
             print(el)
             self.data_list.sort(key=lambda x: str(x[el[0]]))
             for i in range(len(self.data_list)-1):
-                if str(self.data_list[i][0]) == '738145160' or str(self.data_list[i][0]) == '844438277':
-                    q = 0
                 if self.data_list[i][el[0]] == self.data_list[i+1][el[0]] and str(self.data_list[i][el[0]]) != 'nan':
                     self.list_of_link[self.data_list[i][-1]].append(self.data_list[i+1][-1])
                     self.list_of_link[self.data_list[i+1][-1]].append(self.data_list[i][-1])
