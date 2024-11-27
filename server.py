@@ -29,16 +29,18 @@ async def root(request: Request):
 async def view_data(request: Request):
     try:
         # Поиск CSV файла в директории files
-        csv_files = [f for f in os.listdir("files") if f.endswith('.csv')]
+        directory = 'good_files'
+        csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
         if not csv_files:
             raise HTTPException(status_code=404, detail="CSV файл не найден")
-        df = pd.read_csv(f"files/{csv_files[0]}")
-        df = df.head(5)
+        df = pd.read_csv(f"{directory}/{csv_files[0]}")
 
-        table_html = df.to_html(classes=['table', 'table-striped', 'table-hover', 'table-dark', 'sortable'],
-                               index=False,
-                               border=0,
-                               table_id='dataTable')
+        table_html = df.to_html(
+            classes=['table', 'table-striped', 'table-hover', 'table-dark', 'sortable'],
+            index=False,
+            border=0,
+            table_id='dataTable'
+        )
 
         return templates.TemplateResponse(
             "view_data.html",
@@ -55,17 +57,17 @@ async def view_data(request: Request):
 async def upload_file(file: UploadFile = File(...)):
     if not file.filename.endswith(('.rar', '.zip', '.7z', '.csv')):
         raise HTTPException(status_code=400, detail="Только файлы RAR, ZIP, 7Z и CSV разрешены.")
-    
+
     file_location = ""
     try:
         os.makedirs("files", exist_ok=True)
-        
+
         # Проверяем наличие даты/времени в имени файла
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename_parts = os.path.splitext(file.filename)
         base_name = filename_parts[0]
         extension = filename_parts[1]
-        
+
         # Проверяем есть ли дата/время в конце имени файла
         if not re.search(r'\d{8}_\d{6}$', base_name):
             # Если нет - обрезаем имя до 8 символов и добавляем дату/время
@@ -73,9 +75,9 @@ async def upload_file(file: UploadFile = File(...)):
             new_filename = f"{base_name}_{timestamp}{extension}"
         else:
             new_filename = file.filename
-            
+
         file_location = f"files/{new_filename}"
-        
+
         # Сохраняем файл
         with open(file_location, "wb+") as file_object:
             content = await file.read()
@@ -92,21 +94,21 @@ async def upload_file(file: UploadFile = File(...)):
                     fname_parts = os.path.splitext(filename)
                     base = fname_parts[0]
                     ext = fname_parts[1]
-                    
+
                     if not re.search(r'\d{8}_\d{6}$', base):
                         base = base[:8] if len(base) > 8 else base
                         new_name = f"{base}_{timestamp}{ext}"
                         old_path = os.path.join("files", filename)
                         new_path = os.path.join("files", new_name)
                         os.rename(old_path, new_path)
-        
+
         # Удаляем все файлы кроме CSV
         for filename in os.listdir("files"):
             if not filename.endswith('.csv'):
                 os.remove(os.path.join("files", filename))
 
         return {"filename": new_filename, "status": "success"}
-            
+
     except Exception as e:
         if file_location and os.path.exists(file_location):
             os.remove(file_location)

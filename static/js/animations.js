@@ -3,66 +3,66 @@ document.addEventListener('DOMContentLoaded', function() {
     const tl = gsap.timeline();
 
     tl.from('h2.text-light', {
-        y: -50,
-        opacity: 0,
-        duration: 0.6,
-        ease: 'power2.out'
-    })
-    .from('h3.text-light', {
-        x: -30,
-        opacity: 0,
-        duration: 0.4,
-        ease: 'power2.out'
-    }, '-=0.2')
-    .from('#upload-column', {
-        x: -50,
-        opacity: 0,
-        duration: 0.6,
-        ease: 'power2.out'
-    }, '-=0.3')
-    .from('#upload-column .upload-card', {
-        y: 30,
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power2.out'
-    }, '-=0.3')
-    .from('.arrow-right', {
-        scale: 0,
-        opacity: 0,
-        duration: 0.4,
-        ease: 'back.out(1.7)'
-    }, '-=0.3')
-    .from('#download-column', {
-        x: 50,
-        opacity: 0,
-        duration: 0.6,
-        ease: 'power2.out'
-    }, '-=0.4')
-    .from('#download-column .upload-card', {
-        y: 30,
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power2.out'
-    }, '-=0.3')
-    .from('#linkFilesBtn, #viewDataBtn', {
-        y: 20,
-        opacity: 0,
-        duration: 0.4,
-        stagger: 0.2,
-        ease: 'power2.out'
-    }, '-=0.2')
-    .from('#clearFilesBtn', {
-        x: -20,
-        opacity: 0,
-        duration: 0.3,
-        ease: 'power2.out'
-    }, '-=0.2')
-    .from('#filesQueue', {
-        y: 50,
-        opacity: 0,
-        duration: 0.6,
-        ease: 'power2.out'
-    }, '-=0.2');
+            y: -50,
+            opacity: 0,
+            duration: 0.6,
+            ease: 'power2.out'
+        })
+        .from('h3.text-light', {
+            x: -30,
+            opacity: 0,
+            duration: 0.4,
+            ease: 'power2.out'
+        }, '-=0.2')
+        .from('#upload-column', {
+            x: -50,
+            opacity: 0,
+            duration: 0.6,
+            ease: 'power2.out'
+        }, '-=0.3')
+        .from('#upload-column .upload-card', {
+            y: 30,
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.out'
+        }, '-=0.3')
+        .from('.arrow-right', {
+            scale: 0,
+            opacity: 0,
+            duration: 0.4,
+            ease: 'back.out(1.7)'
+        }, '-=0.3')
+        .from('#download-column', {
+            x: 50,
+            opacity: 0,
+            duration: 0.6,
+            ease: 'power2.out'
+        }, '-=0.4')
+        .from('#download-column .upload-card', {
+            y: 30,
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.out'
+        }, '-=0.3')
+        .from('#linkFilesBtn, #viewDataBtn', {
+            y: 20,
+            opacity: 0,
+            duration: 0.4,
+            stagger: 0.2,
+            ease: 'power2.out'
+        }, '-=0.2')
+        .from('#clearFilesBtn', {
+            x: -20,
+            opacity: 0,
+            duration: 0.3,
+            ease: 'power2.out'
+        }, '-=0.2')
+        .from('#filesQueue', {
+            y: 50,
+            opacity: 0,
+            duration: 0.6,
+            ease: 'power2.out'
+        }, '-=0.2');
 });
 
 // Функция анимации появления нового файла

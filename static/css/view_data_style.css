@@ -1,0 +1,71 @@
+
+/* Основной фон страницы */
+body {
+    background-color: #100f17 !important;
+}
+
+/* Стиль для табулятора */
+.tabulator {
+    margin: 20px 0;
+    background-color: #212529;
+    color: #fff;
+    border: 2px dashed #8e44ad !important;
+    border-radius: 10px !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Изменение цвета границы при наведении на табулятор */
+.tabulator:hover {
+    border-color: #9b59b6 !important;
+}
+
+/* Стиль для заголовка табулятора */
+.tabulator-header {
+    background-color: #1a1e21;
+    color: #fff;
+    border: none !important;
+}
+
+/* Стиль для нижнего колонтитула табулятора */
+.tabulator-footer {
+    background-color: transparent !important;
+    color: white;
+    border: none !important;
+}
+
+/* Стиль для пагинатора в нижнем колонтитуле */
+.tabulator-footer .tabulator-paginator {
+    color: white !important;
+}
+
+/* Стиль для страницы в нижнем колонтитуле */
+.tabulator-footer .tabulator-page {
+    color: white !important;
+    background-color: transparent !important;
+}
+
+/* Стиль для активной страницы в нижнем колонтитуле */
+.tabulator-footer .tabulator-page.active {
+    background-color: #8e44ad !important;
+}
+
+/* Изменение фона при наведении на страницу в нижнем колонтитуле */
+.tabulator-footer .tabulator-page:hover {
+    background-color: rgba(142, 68, 173, 0.5) !important;
+}
+
+/* Стиль для строки табулятора */
+.tabulator-row {
+    background-color: #212529;
+    color: #fff;
+}
+
+/* Стиль для четной строки табулятора */
+.tabulator-row.tabulator-row-even {
+    background-color: #2c3034;
+}
+
+/* Изменение фона при наведении на строку табулятора */
+.tabulator-row:hover {
+    background-color: #373b3e !important;
+}

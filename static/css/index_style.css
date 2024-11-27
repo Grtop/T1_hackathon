@@ -1,0 +1,137 @@
+/* Основной стиль для body */
+body {
+    background-color: #100F17; /* Цвет фона */
+}
+
+/* Стиль для бейджа */
+.badge {
+    font-size: 0.9em; /* Размер шрифта */
+    padding: 0.5em 0.7em; /* Отступы */
+}
+
+/* Стиль для кнопки очистки файлов */
+#clearFilesBtn {
+    background-color: #302f35 !important; /* Цвет фона */
+    border: none !important; /* Без границы */
+}
+
+/* Стиль для очереди файлов */
+#filesQueue {
+    color: white; /* Цвет текста */
+}
+
+#filesQueue td {
+    vertical-align: middle; /* Вертикальное выравнивание */
+    background-color: transparent !important; /* Прозрачный фон */
+}
+
+/* Стиль для кнопок просмотра данных и связывания файлов */
+#viewDataBtn, #linkFilesBtn {
+    color: white; /* Цвет текста */
+    background-color: #0d6efd; /* Цвет фона */
+}
+
+#linkFilesBtn {
+    width: 66.67% !important; /* Ширина кнопки */
+}
+
+#viewDataBtn {
+    width: 100% !important; /* Ширина кнопки */
+}
+
+/* Стиль для загрузочной карточки */
+.upload-card {
+    border: 2px dashed #8e44ad; /* Граница */
+    border-radius: 10px; /* Радиус границы */
+    transition: all 0.3s ease; /* Переход */
+}
+
+.upload-card:hover {
+    border-color: #9b59b6; /* Цвет границы при наведении */
+    transform: translateY(-5px); /* Смещение при наведении */
+}
+
+/* Стиль для уведомлений */
+.notification {
+    position: fixed; /* Фиксированное положение */
+    top: 20px; /* Отступ сверху */
+    right: 20px; /* Отступ справа */
+    padding: 15px 25px; /* Отступы */
+    border-radius: 4px; /* Радиус границы */
+    color: white; /* Цвет текста */
+    font-weight: 500; /* Жирность шрифта */
+    z-index: 9999; /* Z-индекс */
+    opacity: 0; /* Прозрачность */
+    transform: translateX(100%); /* Смещение */
+    background-color: rgba(0, 0, 0, 0.8); /* Цвет фона */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Тень */
+    transition: all 0.3s ease; /* Переход */
+    visibility: hidden; /* Видимость */
+    display: flex !important; /* Отображение */
+}
+
+.notification.success {
+    background-color: rgba(40, 167, 69, 0.9); /* Цвет фона для успешного уведомления */
+}
+
+.notification.error {
+    background-color: rgba(220, 53, 69, 0.9); /* Цвет фона для ошибки */
+}
+
+.notification.show {
+    opacity: 1; /* Прозрачность при показе */
+    transform: translateX(0); /* Смещение при показе */
+    visibility: visible; /* Видимость при показе */
+}
+
+/* Стиль для ошибки */
+.error {
+    background-color: #e74c3c; /* Цвет фона */
+    color: white; /* Цвет текста */
+}
+
+/* Стиль для загрузочного индикатора */
+.dots-loader {
+    display: flex; /* Отображение */
+    align-items: center; /* Выравнивание по центру */
+    gap: 6px; /* Промежуток между элементами */
+    padding-left: 10px; /* Отступ слева */
+}
+
+.dot {
+    width: 12px; /* Ширина */
+    height: 12px; /* Высота */
+    background-color: rgba(13, 110, 253, 0.3); /* Цвет фона */
+    border: 2px solid white; /* Граница */
+    border-radius: 50%; /* Радиус границы */
+    animation: bounce 0.8s ease-in-out infinite; /* Анимация */
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.16s; /* Задержка анимации */
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.32s; /* Задержка анимации */
+}
+
+/* Анимация bounce */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0); /* Начальное и конечное положение */
+    }
+    50% {
+        transform: translateY(-10px); /* Положение в середине анимации */
+    }
+}
+
+/* Медиа-запрос для устройств с шириной экрана до 768px */
+@media (max-width: 768px) {
+    .arrow-right {
+        transform: rotate(90deg); /* Поворот стрелки */
+        margin: 20px 0; /* Отступы */
+    }
+    .table {
+        font-size: 0.85rem; /* Размер шрифта */
+    }
+}
