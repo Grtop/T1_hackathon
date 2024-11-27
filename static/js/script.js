@@ -31,30 +31,6 @@ function showNotification(message, type = 'success') {
     }
 }
 
-
-linkFilesBtn.addEventListener('click', function() {
-    linkingLoader.classList.remove('d-none');
-    linkFilesBtn.disabled = true;
-
-    fetch('/link-files/', {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        showNotification('Файлы успешно связаны', 'success');
-        filesWereLinked = true;
-        // Меняем текст после успешного связывания
-        document.querySelector('.download-card p').textContent = 'Скачать output.csv';
-    })
-    .catch(error => {
-        showNotification('Ошибка при связывании файлов', 'error');
-    })
-    .finally(() => {
-        linkingLoader.classList.add('d-none');
-        linkFilesBtn.disabled = false;
-    });
-});
-
 viewDataBtn.addEventListener('click', function() {
     // Добавляем параметр refresh только если файлы были связаны
     window.location.href = filesWereLinked ? '/view_data?refresh=true' : '/view_data';
@@ -154,6 +130,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             showNotification('Файл успешно удален', 'success');
         })
+        .catch(error => {
+            showNotification('Ошибка при удалении файла', 'error');
+        });
     };
 
     fileInput.addEventListener('change', function(e) {
@@ -243,6 +222,30 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 showNotification('Ошибка при скачивании файла', 'error');
             });
+    });
+
+    linkFilesBtn.addEventListener('click', function() {
+        linkingLoader.classList.remove('d-none');
+        linkFilesBtn.disabled = true;
+
+        fetch('/link-files/', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            showNotification('Файлы успешно связаны', 'success');
+            filesWereLinked = true;
+            document.querySelector('.download-card p').textContent = 'Скачать output.csv';
+            loadExistingFiles();
+        })
+        .catch(error => {
+            console.error('Ошибка при связывании файлов:', error);
+            showNotification('Ошибка при связывании файлов', 'error');
+        })
+        .finally(() => {
+            linkingLoader.classList.add('d-none');
+            linkFilesBtn.disabled = false;
+        });
     });
 
     // Загрузка существующих файлов при загрузке страницы
