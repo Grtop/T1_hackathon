@@ -6,6 +6,8 @@ from fastapi.templating import Jinja2Templates
 import os
 import patoolib
 import pandas as pd
+from datetime import datetime
+import re
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -54,13 +56,24 @@ async def upload_file(file: UploadFile = File(...)):
     if not file.filename.endswith(('.rar', '.zip', '.7z', '.csv')):
         raise HTTPException(status_code=400, detail="Только файлы RAR, ZIP, 7Z и CSV разрешены.")
     
+    file_location = ""
     try:
         os.makedirs("files", exist_ok=True)
         
-        # Добавляем дату и время к имени файла
+        # Проверяем наличие даты/времени в имени файла
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename_parts = os.path.splitext(file.filename)
-        new_filename = f"{filename_parts[0]}_{timestamp}{filename_parts[1]}"
+        base_name = filename_parts[0]
+        extension = filename_parts[1]
+        
+        # Проверяем есть ли дата/время в конце имени файла
+        if not re.search(r'\d{8}_\d{6}$', base_name):
+            # Если нет - обрезаем имя до 8 символов и добавляем дату/время
+            base_name = base_name[:8] if len(base_name) > 8 else base_name
+            new_filename = f"{base_name}_{timestamp}{extension}"
+        else:
+            new_filename = file.filename
+            
         file_location = f"files/{new_filename}"
         
         # Сохраняем файл
@@ -72,15 +85,20 @@ async def upload_file(file: UploadFile = File(...)):
         if file.filename.endswith(('.rar', '.zip', '.7z')):
             patoolib.extract_archive(file_location, outdir="files")
             os.remove(file_location)  # Удаляем архив после распаковки
-            
-            # Переименовываем распакованные CSV файлы
+
+            # Для извлеченных CSV файлов применяем ту же логику переименования
             for filename in os.listdir("files"):
                 if filename.endswith('.csv'):
-                    old_path = os.path.join("files", filename)
-                    filename_parts = os.path.splitext(filename)
-                    new_filename = f"{filename_parts[0]}_{timestamp}{filename_parts[1]}"
-                    new_path = os.path.join("files", new_filename)
-                    os.rename(old_path, new_path)
+                    fname_parts = os.path.splitext(filename)
+                    base = fname_parts[0]
+                    ext = fname_parts[1]
+                    
+                    if not re.search(r'\d{8}_\d{6}$', base):
+                        base = base[:8] if len(base) > 8 else base
+                        new_name = f"{base}_{timestamp}{ext}"
+                        old_path = os.path.join("files", filename)
+                        new_path = os.path.join("files", new_name)
+                        os.rename(old_path, new_path)
         
         # Удаляем все файлы кроме CSV
         for filename in os.listdir("files"):
@@ -90,7 +108,7 @@ async def upload_file(file: UploadFile = File(...)):
         return {"filename": new_filename, "status": "success"}
             
     except Exception as e:
-        if os.path.exists(file_location):
+        if file_location and os.path.exists(file_location):
             os.remove(file_location)
         raise HTTPException(status_code=500, detail=str(e))
 
