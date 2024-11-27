@@ -56,7 +56,12 @@ async def upload_file(file: UploadFile = File(...)):
     
     try:
         os.makedirs("files", exist_ok=True)
-        file_location = f"files/{file.filename}"
+        
+        # Добавляем дату и время к имени файла
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename_parts = os.path.splitext(file.filename)
+        new_filename = f"{filename_parts[0]}_{timestamp}{filename_parts[1]}"
+        file_location = f"files/{new_filename}"
         
         # Сохраняем файл
         with open(file_location, "wb+") as file_object:
@@ -67,13 +72,22 @@ async def upload_file(file: UploadFile = File(...)):
         if file.filename.endswith(('.rar', '.zip', '.7z')):
             patoolib.extract_archive(file_location, outdir="files")
             os.remove(file_location)  # Удаляем архив после распаковки
+            
+            # Переименовываем распакованные CSV файлы
+            for filename in os.listdir("files"):
+                if filename.endswith('.csv'):
+                    old_path = os.path.join("files", filename)
+                    filename_parts = os.path.splitext(filename)
+                    new_filename = f"{filename_parts[0]}_{timestamp}{filename_parts[1]}"
+                    new_path = os.path.join("files", new_filename)
+                    os.rename(old_path, new_path)
         
         # Удаляем все файлы кроме CSV
         for filename in os.listdir("files"):
             if not filename.endswith('.csv'):
                 os.remove(os.path.join("files", filename))
 
-        return {"filename": file.filename, "status": "success"}
+        return {"filename": new_filename, "status": "success"}
             
     except Exception as e:
         if os.path.exists(file_location):

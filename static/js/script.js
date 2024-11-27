@@ -2,6 +2,34 @@ const linkFilesBtn = document.getElementById('linkFilesBtn');
 const linkingLoader = document.getElementById('linkingLoader');
 const viewDataBtn = document.getElementById('viewDataBtn');
 
+
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    notification.style.display = 'block';
+    // Проверяем, доступна ли функция animateNotification
+    if (typeof animateNotification === 'undefined') {
+        // Простая альтернатива без анимации, если GSAP еще не загрузился
+        notification.className = 'notification';
+        notification.textContent = message;
+        notification.classList.add(type);
+        notification.style.visibility = 'visible';
+        notification.style.opacity = '1';
+        
+        // Скрываем через 3 секунды
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.visibility = 'hidden';
+        }, 3000);
+    } else {
+        // Используем GSAP анимацию если она доступна
+        notification.className = 'notification';
+        notification.textContent = message;
+        notification.classList.add(type);
+        animateNotification(notification);
+    }
+}
+
+
 linkFilesBtn.addEventListener('click', function() {
     linkingLoader.classList.remove('d-none');
     linkFilesBtn.disabled = true;
@@ -71,10 +99,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadExistingFiles() {
+        const tbody = filesQueue.querySelector('tbody');
+        tbody.innerHTML = '';
+        
         fetch('/files/')
             .then(response => response.json())
             .then(files => {
-                filesQueue.querySelector('tbody').innerHTML = '';
                 files.forEach(fileData => {
                     const file = {
                         name: fileData.name,
@@ -100,13 +130,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             showNotification('Файл успешно удален', 'success');
         })
-        .catch(error => {
-            showNotification('Ошибка при удалении файла', 'error');
-        });
     };
 
     fileInput.addEventListener('change', function(e) {
         const files = Array.from(this.files);
+        
+        // Показываем уведомление о начале загрузки
+        showNotification('Начинается загрузка файлов...', 'success');
+        
         files.forEach(file => {
             const formData = new FormData();
             formData.append('file', file);
@@ -145,6 +176,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Загрузите существующие файлы при загрузке страницы
+    // Загрузка существующих файлов при загрузке страницы
     loadExistingFiles();
 });
+
+

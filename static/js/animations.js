@@ -14,31 +14,31 @@ document.addEventListener('DOMContentLoaded', function() {
         duration: 0.4,
         ease: 'power2.out'
     }, '-=0.2')
-    .from('.col-md-4:nth-child(1)', {
+    .from('#upload-column', {
         x: -50,
         opacity: 0,
         duration: 0.6,
         ease: 'power2.out'
     }, '-=0.3')
-    .from('.col-md-4:nth-child(1) .upload-card', {
+    .from('#upload-column .upload-card', {
         y: 30,
         opacity: 0,
         duration: 0.5,
         ease: 'power2.out'
     }, '-=0.3')
-    .from('.fa-arrow-right', {
+    .from('.arrow-right', {
         scale: 0,
         opacity: 0,
         duration: 0.4,
         ease: 'back.out(1.7)'
     }, '-=0.3')
-    .from('.col-md-4:nth-child(3)', {
+    .from('#download-column', {
         x: 50,
         opacity: 0,
         duration: 0.6,
         ease: 'power2.out'
     }, '-=0.4')
-    .from('.col-md-4:nth-child(3) .upload-card', {
+    .from('#download-column .upload-card', {
         y: 30,
         opacity: 0,
         duration: 0.5,
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         duration: 0.3,
         ease: 'power2.out'
     }, '-=0.2')
-    .from('.container:nth-child(2) .upload-card', {
+    .from('#filesQueue', {
         y: 50,
         opacity: 0,
         duration: 0.6,
@@ -85,4 +85,34 @@ function animateFilesClear(rows, onComplete) {
         ease: 'power2.in',
         onComplete: onComplete
     });
+}
+
+// Функция анимации уведомления
+function animateNotification(notification) {
+    gsap.fromTo(notification, 
+        {
+            opacity: 0,
+            x: 100,
+            visibility: 'visible'
+        },
+        {
+            opacity: 1,
+            x: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            onComplete: () => {
+                // Автоматическое скрытие через 3 секунды
+                gsap.to(notification, {
+                    opacity: 0,
+                    x: 100,
+                    delay: 3,
+                    duration: 0.5,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        notification.style.visibility = 'hidden';
+                    }
+                });
+            }
+        }
+    );
 }

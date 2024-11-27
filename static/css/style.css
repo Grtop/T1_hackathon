@@ -17,15 +17,32 @@ body {
     position: fixed;
     top: 20px;
     right: 20px;
-    padding: 15px;
-    border-radius: 5px;
-    display: none;
-    z-index: 1000;
+    padding: 15px 25px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(100%);
+    background-color: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    visibility: hidden;
+    display: flex !important;
 }
 
-.success {
-    background-color: #2ecc71;
-    color: white;
+.notification.success {
+    background-color: rgba(40, 167, 69, 0.9);
+}
+
+.notification.error {
+    background-color: rgba(220, 53, 69, 0.9);
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+    visibility: visible;
 }
 
 .error {
