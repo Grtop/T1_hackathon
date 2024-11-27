@@ -2,6 +2,8 @@ const linkFilesBtn = document.getElementById('linkFilesBtn');
 const linkingLoader = document.getElementById('linkingLoader');
 const viewDataBtn = document.getElementById('viewDataBtn');
 
+// Добавим флаг для отслеживания связывания файлов
+let filesWereLinked = false;
 
 function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
@@ -40,6 +42,7 @@ linkFilesBtn.addEventListener('click', function() {
     .then(response => response.json())
     .then(data => {
         showNotification('Файлы успешно связаны', 'success');
+        filesWereLinked = true; // Устанавливаем флаг после успешного связывания
     })
     .catch(error => {
         showNotification('Ошибка при связывании файлов', 'error');
@@ -51,7 +54,9 @@ linkFilesBtn.addEventListener('click', function() {
 });
 
 viewDataBtn.addEventListener('click', function() {
-    window.location.href = '/view_data?refresh=true';
+    // Добавляем параметр refresh только если файлы были связаны
+    window.location.href = filesWereLinked ? '/view_data?refresh=true' : '/view_data';
+    filesWereLinked = false; // Сбрасываем флаг
 });
 
 document.addEventListener('DOMContentLoaded', function() {
