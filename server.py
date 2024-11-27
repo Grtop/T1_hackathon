@@ -1,6 +1,6 @@
-from fastapi import FastAPI, Request, UploadFile, File, HTTPException
+from fastapi import FastAPI, Request, UploadFile, File, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
@@ -9,6 +9,7 @@ import pandas as pd
 from datetime import datetime
 import re
 from backend import get_good_file
+import functools
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -22,18 +23,38 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Создаем кеш для данных таблицы
+table_cache = {
+    'html': None,
+    'columns': None
+}
+
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
+    os.makedirs('files', exist_ok=True)
+    os.makedirs('good_files', exist_ok=True)
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/view_data", response_class=HTMLResponse)
-async def view_data(request: Request):
+async def view_data(request: Request, refresh: bool = Query(False)):
     try:
-        # Поиск CSV файла в директории good_files
+        # Если есть кеш и не требуется обновление, возвращаем кешированные данные
+        if table_cache['html'] is not None and not refresh:
+            return templates.TemplateResponse(
+                "view_data.html",
+                {
+                    "request": request,
+                    "table": table_cache['html'],
+                    "columns": table_cache['columns']
+                }
+            )
+
+        # Иначе читаем данные заново
         directory = 'good_files'
         csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
         if not csv_files:
             raise HTTPException(status_code=404, detail="CSV файл не найден")
+        
         df = pd.read_csv(f"{directory}/{csv_files[0]}")
         df = df.head(1000)
         table_html = df.to_html(
@@ -42,6 +63,11 @@ async def view_data(request: Request):
             border=0,
             table_id='dataTable'
         )
+
+        # Сохраняем в кеш
+        table_cache['html'] = table_html
+        table_cache['columns'] = df.columns.tolist()
+
         return templates.TemplateResponse(
             "view_data.html",
             {
@@ -167,6 +193,18 @@ async def link_files():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/download/")
+async def download_file():
+    file_path = "good_files/output.csv"
+    if os.path.exists(file_path):
+        return FileResponse(
+            path=file_path,
+            filename="output.csv",
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment"}
+        )
+    raise HTTPException(status_code=404, detail="Файл не найден")
 
 if __name__ == "__main__":
     import uvicorn

@@ -299,7 +299,7 @@ async def all_csv_in_one():
 async def get_good_file():
     if await all_csv_in_one():
         backend('files/all.csv')
-        os.makedirs('goodfiles', exist_ok=True)
+        os.makedirs('good_files', exist_ok=True)
         os.rename('output.csv', 'good_files/output.csv')
 
     return True

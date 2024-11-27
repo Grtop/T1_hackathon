@@ -51,13 +51,14 @@ linkFilesBtn.addEventListener('click', function() {
 });
 
 viewDataBtn.addEventListener('click', function() {
-    window.location.href = '/view_data';
+    window.location.href = '/view_data?refresh=true';
 });
 
 document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('fileInput');
     const filesQueue = document.getElementById('filesQueue');
     const clearFilesBtn = document.getElementById('clearFilesBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
 
     function getFileIcon(extension) {
         const icons = {
@@ -107,8 +108,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadExistingFiles() {
+        // Сохраняем все строки с загрузчиками
+        const loaderRows = Array.from(filesQueue.querySelectorAll('tr[data-filename]'));
         const tbody = filesQueue.querySelector('tbody');
-        tbody.innerHTML = '';
+        
+        // Очищаем только строки без data-filename
+        Array.from(tbody.children).forEach(row => {
+            if (!row.hasAttribute('data-filename')) {
+                row.remove();
+            }
+        });
         
         fetch('/files/')
             .then(response => response.json())
@@ -143,10 +152,21 @@ document.addEventListener('DOMContentLoaded', function() {
     fileInput.addEventListener('change', function(e) {
         const files = Array.from(this.files);
         
-        // Показываем уведомление о начале загрузки
         showNotification('Начинается загрузка файлов...', 'success');
         
         files.forEach(file => {
+            const row = document.createElement('tr');
+            row.dataset.filename = file.name;
+            row.innerHTML = `
+                <td colspan="3" class="text-center text-light">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    Загрузка файла: ${file.name}
+                </td>
+            `;
+            filesQueue.querySelector('tbody').appendChild(row);
+
             const formData = new FormData();
             formData.append('file', file);
 
@@ -156,10 +176,18 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
+                const loaderRow = filesQueue.querySelector(`tr[data-filename="${file.name}"]`);
+                if (loaderRow) {
+                    loaderRow.remove();
+                }
                 loadExistingFiles();
                 showNotification('Файл успешно загружен', 'success');
             })
             .catch(error => {
+                const loaderRow = filesQueue.querySelector(`tr[data-filename="${file.name}"]`);
+                if (loaderRow) {
+                    loaderRow.remove();
+                }
                 showNotification('Ошибка при загрузке файла', 'error');
             });
         });
@@ -184,8 +212,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    downloadBtn.addEventListener('click', function() {
+        fetch('/download/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Файл не найден');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "output.csv";
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                showNotification('Файл успешно скачан', 'success');
+            })
+            .catch(error => {
+                showNotification('Ошибка при скачивании файла', 'error');
+            });
+    });
+
     // Загрузка существующих файлов при загрузке страницы
     loadExistingFiles();
 });
-
-
