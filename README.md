@@ -1,5 +1,6 @@
 
-![voyager_logo](https://github.com/user-attachments/assets/73224f04-be12-4f47-96eb-b5efd8bea14e)
+![voyager_logo](https://github.com/user-attachments/assets/b2abcbbf-693a-453e-a023-961b849fed9a)
+
 
 ﻿# Voyager: Сервис для определения "Золотой записи"
 
