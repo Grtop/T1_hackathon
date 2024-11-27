@@ -58,19 +58,62 @@ async def upload_file(file: UploadFile = File(...)):
         os.makedirs("files", exist_ok=True)
         file_location = f"files/{file.filename}"
         
+        # Сохраняем файл
         with open(file_location, "wb+") as file_object:
-            file_object.write(await file.read())
+            content = await file.read()
+            file_object.write(content)
 
         # Разархивирование если это архив
         if file.filename.endswith(('.rar', '.zip', '.7z')):
             patoolib.extract_archive(file_location, outdir="files")
             os.remove(file_location)  # Удаляем архив после распаковки
+        
+        # Удаляем все файлы кроме CSV
+        for filename in os.listdir("files"):
+            if not filename.endswith('.csv'):
+                os.remove(os.path.join("files", filename))
 
         return {"filename": file.filename, "status": "success"}
             
     except Exception as e:
         if os.path.exists(file_location):
             os.remove(file_location)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/files/")
+async def get_files():
+    try:
+        files = []
+        for filename in os.listdir("files"):
+            files.append({
+                "name": filename,
+                "extension": filename.split('.')[-1],
+                "uploadTime": os.path.getctime(f"files/{filename}")
+            })
+        return files
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/files/{filename}")
+async def delete_file(filename: str):
+    try:
+        file_path = f"files/{filename}"
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return {"status": "success"}
+        raise HTTPException(status_code=404, detail="Файл не найден")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/clear-files/")
+async def clear_files():
+    try:
+        for filename in os.listdir("files"):
+            file_path = os.path.join("files", filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+        return {"status": "success"}
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

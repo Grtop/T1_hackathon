@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function addFileToQueue(file) {
         const extension = file.name.split('.').pop().toLowerCase();
         const nameWithoutExt = file.name.replace(`.${extension}`, '');
-        const uploadTime = formatDate(new Date());
+        const uploadTime = formatDate(file.uploadTime || new Date());
 
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -61,16 +61,49 @@ document.addEventListener('DOMContentLoaded', function() {
             </td>
             <td class="text-end">
                 <span class="text-light me-3">${uploadTime}</span>
-                <button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()">
+                <button class="btn btn-link text-danger p-0" onclick="deleteFile('${file.name}', this)">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </td>
         `;
         filesQueue.querySelector('tbody').appendChild(row);
-
-        // Вызываем анимацию появления
         animateFileAppearance(row);
     }
+
+    function loadExistingFiles() {
+        fetch('/files/')
+            .then(response => response.json())
+            .then(files => {
+                filesQueue.querySelector('tbody').innerHTML = '';
+                files.forEach(fileData => {
+                    const file = {
+                        name: fileData.name,
+                        uploadTime: new Date(fileData.uploadTime * 1000)
+                    };
+                    addFileToQueue(file);
+                });
+            })
+            .catch(error => {
+                showNotification('Ошибка при загрузке списка файлов', 'error');
+            });
+    }
+
+    window.deleteFile = function(filename, button) {
+        fetch(`/files/${filename}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            const row = button.closest('tr');
+            animateFilesClear([row], () => {
+                row.remove();
+            });
+            showNotification('Файл успешно удален', 'success');
+        })
+        .catch(error => {
+            showNotification('Ошибка при удалении файла', 'error');
+        });
+    };
 
     fileInput.addEventListener('change', function(e) {
         const files = Array.from(this.files);
@@ -84,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                addFileToQueue(file);
+                loadExistingFiles();
                 showNotification('Файл успешно загружен', 'success');
             })
             .catch(error => {
@@ -96,19 +129,22 @@ document.addEventListener('DOMContentLoaded', function() {
     clearFilesBtn.addEventListener('click', function() {
         const rows = filesQueue.querySelectorAll('tbody tr');
 
-        // Вызываем анимацию удаления
-        animateFilesClear(rows, () => {
-            filesQueue.querySelector('tbody').innerHTML = '';
-            fetch('/clear-files/', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                showNotification('Все файлы удалены', 'success');
-            })
-            .catch(error => {
-                showNotification('Ошибка при удалении файлов', 'error');
+        fetch('/clear-files/', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            animateFilesClear(rows, () => {
+                filesQueue.querySelector('tbody').innerHTML = '';
             });
+            showNotification('Все файлы удалены', 'success');
+            loadExistingFiles(); // Обновляем список файлов
+        })
+        .catch(error => {
+            showNotification('Ошибка при удалении файлов', 'error');
         });
     });
+
+    // Загрузите существующие файлы при загрузке страницы
+    loadExistingFiles();
 });
