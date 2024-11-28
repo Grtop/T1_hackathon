@@ -32,12 +32,18 @@
 <p></p>
 <div class="container h-100 d-flex align-items-center justify-content-center" style="min-height: 100vh;">
     <div class="row w-100">
-        <div class="col-12 text-center mb-4">
-            <img src="/static/img/ico/voyager_logo.png" class="img-fluid" style="width: 25%;" alt="Voyager Logo">
+        <div class="col-12 text-center mb-4 d-flex justify-content-center">
+            <img src="/static/img/ico/ico_2.png" class="img-fluid rotate-image" style="height: 12vh;" alt="Voyager Logo">
+            <img src="/static/img/ico/voyager_logo_only_text.png" class="img-fluid" style="height: 12vh;" alt="Voyager Logo">
         </div>
         <p></p>
         <p></p>
         <p></p>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                gsap.to('.rotate-image', {rotation: 180, duration: 2});
+            });
+        </script>
         <!-- Первая колонка -->
         <div class="col-md-4">
             <h2 class="text-center text-light mb-4 text-nowrap">Загрузите файлы</h2>
@@ -68,6 +74,7 @@
         <div class="col-md-4 d-flex align-items-center justify-content-center">
             <i class="fas fa-arrow-right fa-3x text-light arrow-right"></i>
         </div>
+        
 
         <!-- Третья колонка -->
         <div class="col-md-4">
