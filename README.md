@@ -80,3 +80,7 @@
 ```
 
 ```
+# Скриншоты продукта
+
+
+![Без имени-2](https://github.com/user-attachments/assets/3f733032-120c-4c29-8b6c-75c9bda99957)
