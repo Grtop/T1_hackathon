@@ -262,7 +262,10 @@ async def download_file(format: str, background_tasks: BackgroundTasks):
                 path=input_file,
                 filename="output.csv",
                 media_type="text/csv",
-                headers={"Content-Disposition": "attachment"}
+                headers={
+                    'Content-Disposition': 'attachment; filename=your_file.csv',
+                    'Content-Type': 'text/csv',
+                }
             )
 
         elif format == "zip":

@@ -1,11 +1,16 @@
 FROM python:3.10-slim
 
-# RUN apt-get update && \
-#     apt-get install -y software-properties-common && \
-#     apt-add-repository non-free && \
-#     apt-get update && \
-#     apt-get install -y rar unrar && \
-#     rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    apt-get install -y wget && \
+    wget https://www.rarlab.com/rar/rarlinux-x64-6.0.2.tar.gz && \
+    tar -xzf rarlinux-x64-6.0.2.tar.gz && \
+    cd rar && \
+    cp -v rar unrar /usr/local/bin/ && \
+    rm -rf /rarlinux-x64-6.0.2.tar.gz /rar && \
+    apt-get remove -y wget && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip
 
