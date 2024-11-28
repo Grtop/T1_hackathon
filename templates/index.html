@@ -10,6 +10,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <link rel="icon" href="/static/img/ico/ico.png" type="image/png">
+    <style>
+        .text-nowrap {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: calc(1rem + 0.5vw);
+        }
+    </style>
 </head>
 <body>
     <div class="triangles-container"></div>
@@ -32,11 +40,11 @@
         <p></p>
         <!-- Первая колонка -->
         <div class="col-md-4">
-            <h2 class="text-center text-light mb-4">Загрузите файлы</h2>
+            <h2 class="text-center text-light mb-4 text-nowrap">Загрузите файлы</h2>
             <div class="card upload-card">
                 <div class="card-body text-center">
                     <i class="bi bi-upload fa-3x mb-3"></i>
-                    <p>Выберите или перетащите файл</p>
+                    <p class="text-nowrap">Выберите или перетащите файл</p>
                     <form id="uploadForm">
                         <input type="file" id="fileInput" class="d-none" multiple accept=".csv,.rar,.zip">
                         <button type="button" class="btn btn-primary"
@@ -63,11 +71,11 @@
 
         <!-- Третья колонка -->
         <div class="col-md-4">
-            <h2 class="text-center text-light mb-4">Готовые файлы</h2>
+            <h2 class="text-center text-light mb-4 text-nowrap">Готовые файлы</h2>
             <div class="card upload-card download-card">
                 <div class="card-body text-center">
                     <i class="bi bi-download fa-3x mb-3"></i>
-                    <p>Скачать обработанные файлы</p>
+                    <p class="text-nowrap">Скачать обработанные файлы</p>
                     <div class="d-flex justify-content-center">
                         <button type="button" class="btn btn-primary me-2" id="downloadBtn" style="font-size: 0.6rem;">
                             Скачать CSV
@@ -96,7 +104,7 @@
 <div class="container mb-4">
     <div class="row">
         <div class="col-12">
-            <h3 class="text-light text-start mb-3">Список всех файлов</h3>
+            <h3 class="text-light text-start mb-3 text-nowrap">Список всех файлов</h3>
             <button class="btn btn-danger mb-3" id="clearFilesBtn"
                     style="background-color: #302f35 !important; border: none !important;">
                 <i class="bi bi-trash"></i> Стереть все файлы
