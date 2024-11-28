@@ -41,60 +41,6 @@ class backend:
         self.data.loc[~valid_mask, 'client_bday'] = pd.NA
         
         
-        # ## Обрабатываем код статуса резидента пользователя:
-        # #   - строка состоил из Д или Н
-        # valid_mask = (
-        #     self.data['client_resident_cd'].notna() &
-        #     ((self.data['client_resident_cd'].str.strip() == 'Д') | (self.data['client_resident_cd'].str.strip() == 'Н'))
-        # )
-        # self.data.loc[~valid_mask, 'client_resident_cd'] = pd.NA
-    
-
-        # ## Обрабатываем пол пользователя:
-        # #   - строка состоил из М или Ж
-        # valid_mask = (
-        #     self.data['client_gender'].notna() &
-        #     ((self.data['client_gender'].str.strip() == 'М') | (self.data['client_gender'].str.strip() == 'Ж'))
-        # )
-        # self.data.loc[~valid_mask, 'client_gender'] = pd.NA
-
-
-        # ## Обрабатываем семейное положение пользователя:
-        # #   - строка состоил из Д или Н
-        # valid_mask = (
-        #     self.data['client_marital_cd'].notna() &
-        #     ((self.data['client_marital_cd'].str.strip() == 'Д') | (self.data['client_marital_cd'].str.strip() == 'Н'))
-        # )
-        # self.data.loc[~valid_mask, 'client_marital_cd'] = pd.NA
-
-
-        # ## Обрабатываем уровень образования пользователя:
-        # #   - строка состоил из Д или Н
-        # valid_mask = (
-        #     self.data['client_graduate'].notna() &
-        #     ((self.data['client_graduate'].str.strip() == 'Д') | (self.data['client_graduate'].str.strip() == 'Н'))
-        # )
-        # self.data.loc[~valid_mask, 'client_graduate'] = pd.NA
-
-
-        # ## Обрабатываем статус военной службы пользователя:
-        # #   - строка состоил из Д или Н
-        # valid_mask = (
-        #     self.data['client_mil_cd'].notna() &
-        #     ((self.data['client_mil_cd'].str.strip() == 'Д') | (self.data['client_mil_cd'].str.strip() == 'Н'))
-        # )
-        # self.data.loc[~valid_mask, 'client_mil_cd'] = pd.NA
-
-
-        # ## Обрабатываем статус заграничного паспорта пользователя:
-        # #   - строка состоил из Д или Н
-        # valid_mask = (
-        #     self.data['client_zagran_cd'].notna() &
-        #     ((self.data['client_zagran_cd'].str.strip() == 'Д') | (self.data['client_zagran_cd'].str.strip() == 'Н'))
-        # )
-        # self.data.loc[~valid_mask, 'client_zagran_cd'] = pd.NA
-        
-        
         ## Обрабатываем ИНН пользователя:
         #   - инн состоит из 12 цифр | 14 знаков с учётом .0
         
@@ -154,10 +100,7 @@ class backend:
             if pd.isna(x):
                 return pd.NA
             
-            phone = ''
-            for el in x:
-                if el in '0123456789':
-                    phone += el
+            phone = ''.join(filter(str.isdigit, x))
                     
             if len(phone) == 10:
                 phone = '+7' + phone
@@ -192,36 +135,31 @@ class backend:
     
     
     def merge_data(self):        
-        columns = self.data.columns
+        columns = [el for el in self.data.columns]
         self.data['index'] = range(len(self.data))
         
-        # Convert data_list to numpy array
         self.data_list = np.array(self.data.values)
         
-        # Define arrays instead of lists
         lst1 = np.array([
-            [15],
-            [16],
-            [18],
-            [19],
-            [21],
-            [22]
+            [columns.index('client_inn')],
+            [columns.index('client_snils')],
+            [columns.index('contact_vc')],
+            [columns.index('contact_tg')],
+            [columns.index('contact_email')],
+            [columns.index('contact_phone')]
         ])
         
         lst2 = np.array([
-            [4, 5],
-            [4, 34],
-            [40, 41],
-            [5, 34],
+            [columns.index('client_fio_full'), columns.index('client_bday')],
+            [columns.index('fin_loan_begin_dt'), columns.index('fin_loan_end_dt')],
+            [columns.index('client_bday'), columns.index('addr_str')],
         ])
-        
-        # Initialize list_of_link as a list of empty lists
-        # (keeping as list since you're dynamically appending to it)
+
+
         self.list_of_link = [[] for i in range(len(self.data))]
         
         for el in lst1:
             print(el)
-            # Sort the numpy array
             self.data_list = self.data_list[np.argsort(self.data_list[:, el[0]], kind='stable')]
             for i in range(len(self.data_list)-1):
                 if (self.data_list[i][el[0]] == self.data_list[i+1][el[0]] and 
@@ -231,7 +169,6 @@ class backend:
                     
         for el in lst2:
             print(el)
-            # Sort by multiple columns
             sort_idx = np.lexsort((self.data_list[:, el[1]], self.data_list[:, el[0]]))
             self.data_list = self.data_list[sort_idx]
             
@@ -268,17 +205,66 @@ class backend:
 
 async def all_csv_in_one():
     try:
+        df_pandas = pd.DataFrame(columns=[
+            'client_id',
+            'client_first_name',
+            'client_middle_name',
+            'client_last_name',
+            'client_fio_full',
+            'client_bday',
+            'client_bplace',
+            'client_cityzen',
+            'client_resident_cd',
+            'client_gender',
+            'client_marital_cd',
+            'client_graduate',
+            'client_child_cnt',
+            'client_mil_cd',
+            'client_zagran_cd',
+            'client_inn',
+            'client_snils',
+            'client_vip_cd',
+            'contact_vc',
+            'contact_tg',
+            'contact_other',
+            'contact_email',
+            'contact_phone',
+            'addr_region',
+            'addr_country',
+            'addr_zip',
+            'addr_street',
+            'addr_house',
+            'addr_body',
+            'addr_flat',
+            'addr_area',
+            'addr_loc',
+            'addr_city',
+            'addr_reg_dt',
+            'addr_str',
+            'fin_rating',
+            'fin_loan_limit',
+            'fin_loan_value',
+            'fin_loan_debt',
+            'fin_loan_percent',
+            'fin_loan_begin_dt',
+            'fin_loan_end_dt',
+            'stream_favorite_show',
+            'stream_duration',
+            'create_date',
+            'update_date',
+            'source_cd'
+        ])
+
         directory = 'files'
         csv_files = [f for f in os.listdir(directory) if f.endswith('.csv')]
-        
-        with open(f"{directory}/all.csv","wb") as fout:
-            fout.write('client_id,client_first_name,client_middle_name,client_last_name,client_fio_full,client_bday,client_bplace,client_cityzen,client_resident_cd,client_gender,client_marital_cd,client_graduate,client_child_cnt,client_mil_cd,client_zagran_cd,client_inn,client_snils,client_vip_cd,contact_vc,contact_tg,contact_other,contact_email,contact_phone,addr_region,addr_country,addr_zip,addr_street,addr_house,addr_body,addr_flat,addr_area,addr_loc,addr_city,addr_reg_dt,addr_str,fin_rating,fin_loan_limit,fin_loan_value,fin_loan_debt,fin_loan_percent,fin_loan_begin_dt,fin_loan_end_dt,stream_favorite_show,stream_duration,create_date,update_date,source_cd\n'.encode('utf-8'))
-            for i in range(len(csv_files)):
-                if csv_files[i] == 'all.csv':
-                    continue
-                with open(f"{directory}/{csv_files[i]}", "rb") as f:
-                    next(f)
-                    fout.write(f.read())
+        for i in range(len(csv_files)):
+            if csv_files[i] == 'all.csv':
+                continue
+            df_pandas = pd.concat([
+                df_pandas,
+                pd.read_csv(f"{directory}/{csv_files[i]}")
+            ])
+        df_pandas.to_csv(f"{directory}/all.csv", index=False)
 
         for filename in os.listdir(directory):
             if filename != 'all.csv':

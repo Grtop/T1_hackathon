@@ -4,3 +4,5 @@
 files/*
 good_files
 *.vscode
+hayp
+test_pandas.py
