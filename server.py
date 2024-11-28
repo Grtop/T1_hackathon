@@ -10,6 +10,9 @@ from datetime import datetime
 import re
 from backend import get_good_file
 import functools
+import zipfile
+import shutil
+from fastapi.background import BackgroundTasks
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -228,17 +231,100 @@ async def link_files():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/download/")
-async def download_file():
-    file_path = "good_files\output.csv"
-    if os.path.exists(file_path):
-        return FileResponse(
-            path=file_path,
-            filename="output.csv",
-            media_type="text/csv",
-            headers={"Content-Disposition": "attachment"}
-        )
-    raise HTTPException(status_code=404, detail="Файл не найден")
+@app.get("/download/{format}")
+async def download_file(format: str, background_tasks: BackgroundTasks):
+    print(f"Запрос на скачивание в формате: {format}")
+    try:
+        # Проверяем наличие директории и файла
+        if not os.path.exists("good_files"):
+            print("Директория good_files не существует")
+            os.makedirs("good_files", exist_ok=True)
+            raise HTTPException(status_code=404, detail="Файлы не найдены. Сначала выполните связывание файлов.")
+
+        input_file = "good_files/output.csv"
+        print(f"Проверка наличия файла: {input_file}")
+        
+        if not os.path.exists(input_file):
+            print(f"Файл не найден: {input_file}")
+            raise HTTPException(
+                status_code=404, 
+                detail="Файл не найден. Пожалуйста, сначала выполните связывание файлов."
+            )
+
+        # Создаем временную директорию для архивов
+        temp_dir = "temp_archives"
+        print(f"Создание временной директории: {temp_dir}")
+        os.makedirs(temp_dir, exist_ok=True)
+
+        if format == "csv":
+            print("Отправка CSV файла")
+            return FileResponse(
+                path=input_file,
+                filename="output.csv",
+                media_type="text/csv",
+                headers={"Content-Disposition": "attachment"}
+            )
+
+        elif format == "zip":
+            print("Создание ZIP архива")
+            zip_path = os.path.join(temp_dir, "output.zip")
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                print(f"Добавление файла в архив: {input_file}")
+                zipf.write(input_file, "output.csv")
+            
+            def cleanup():
+                try:
+                    if os.path.exists(zip_path):
+                        os.remove(zip_path)
+                    if os.path.exists(temp_dir) and not os.listdir(temp_dir):
+                        os.rmdir(temp_dir)
+                except Exception as e:
+                    print(f"Ошибка при очистке: {e}")
+
+            background_tasks.add_task(cleanup)
+            
+            return FileResponse(
+                path=zip_path,
+                filename="output.zip",
+                media_type="application/zip",
+                headers={"Content-Disposition": "attachment"}
+            )
+
+        elif format == "rar":
+            print("Создание RAR архива")
+            rar_path = os.path.join(temp_dir, "output.rar")
+            try:
+                patoolib.create_archive(rar_path, [input_file])
+            except Exception as e:
+                print(f"Ошибка создания RAR: {e}")
+                raise HTTPException(status_code=500, detail="Ошибка создания RAR архива")
+
+            def cleanup():
+                try:
+                    if os.path.exists(rar_path):
+                        os.remove(rar_path)
+                    if os.path.exists(temp_dir) and not os.listdir(temp_dir):
+                        os.rmdir(temp_dir)
+                except Exception as e:
+                    print(f"Ошибка при очистке: {e}")
+
+            background_tasks.add_task(cleanup)
+            
+            return FileResponse(
+                path=rar_path,
+                filename="output.rar",
+                media_type="application/x-rar-compressed",
+                headers={"Content-Disposition": "attachment"}
+            )
+
+        else:
+            raise HTTPException(status_code=400, detail="Неподдерживаемый формат")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ошибка при обработке запроса: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

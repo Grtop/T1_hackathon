@@ -5,32 +5,54 @@ const viewDataBtn = document.getElementById('viewDataBtn');
 // Добавим флаг для отслеживания связывания файлов
 let filesWereLinked = false;
 
-function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    notification.style.display = 'block';
-    // Проверяем, доступна ли функция animateNotification
-    if (typeof animateNotification === 'undefined') {
-        // Простая альтернатива без анимации, если GSAP еще не загрузился
-        notification.className = 'notification';
-        notification.textContent = message;
-        notification.classList.add(type);
-        notification.style.visibility = 'visible';
-        notification.style.opacity = '1';
-        
-        // Скрываем через 3 секунды
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.visibility = 'hidden';
-        }, 3000);
-    } else {
-        // Используем GSAP анимацию если она доступна
-        notification.className = 'notification';
-        notification.textContent = message;
-        notification.classList.add(type);
-        animateNotification(notification);
+// Инициализация кнопок скачивания
+const downloadButtons = {
+    'downloadBtn': 'csv',
+    'downloadZipBtn': 'zip',
+    'downloadRarBtn': 'rar'
+};
+
+// Функция для скачивания файла
+async function downloadFile(format) {
+    showNotification('Начало скачивания...', 'success');
+
+    try {
+        const response = await fetch(`/download/${format}`);
+
+        if (!response.ok) {
+            throw new Error(`Ошибка скачивания: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `output.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+
+        showNotification('Файл успешно скачан', 'success');
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showNotification('Ошибка при скачивании файла', 'error');
     }
 }
 
+// Инициализация обработчиков для кнопок скачивания
+Object.entries(downloadButtons).forEach(([buttonId, format]) => {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.addEventListener('click', () => {
+            downloadFile(format);
+        });
+    } else {
+        console.error(`Кнопка ${buttonId} не найдена`);
+    }
+});
+
+// Обработчик для кнопки просмотра данных
 viewDataBtn.addEventListener('click', function() {
     // Добавляем параметр refresh только если файлы были связаны
     window.location.href = filesWereLinked ? '/view_data?refresh=true' : '/view_data';
@@ -43,6 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearFilesBtn = document.getElementById('clearFilesBtn');
     const downloadBtn = document.getElementById('downloadBtn');
 
+    // Функция для получения иконки файла по расширению
     function getFileIcon(extension) {
         const icons = {
             'csv': 'bi-file-earmark-spreadsheet',
@@ -52,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return icons[extension] || 'bi-file-earmark';
     }
 
+    // Функция для форматирования даты
     function formatDate(date) {
         return date.toLocaleString('ru-RU', {
             day: '2-digit',
@@ -62,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Функция для добавления файла в очередь
     function addFileToQueue(file) {
         const extension = file.name.split('.').pop().toLowerCase();
         const nameWithoutExt = file.name.replace(`.${extension}`, '');
@@ -90,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         animateFileAppearance(row);
     }
 
+    // Функция для загрузки существующих файлов
     function loadExistingFiles() {
         // Сохраняем все строки с загрузчиками
         const loaderRows = Array.from(filesQueue.querySelectorAll('tr[data-filename]'));
@@ -118,6 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    // Функция для удаления файла
     window.deleteFile = function(filename, button) {
         fetch(`/files/${filename}`, {
             method: 'DELETE'
@@ -135,6 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
+    // Обработчик для загрузки файлов
     fileInput.addEventListener('change', function(e) {
         const files = Array.from(this.files);
         
@@ -179,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Обработчик для кнопки очистки файлов
     clearFilesBtn.addEventListener('click', function() {
         const rows = filesQueue.querySelectorAll('tbody tr');
 
@@ -198,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Обработчик для кнопки скачивания
     downloadBtn.addEventListener('click', function() {
         showNotification('Загрузка началась', 'success'); // Уведомление о начале загрузки
 
@@ -224,6 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
+    // Обработчик для кнопки связывания файлов
     linkFilesBtn.addEventListener('click', function() {
         linkingLoader.classList.remove('d-none');
         linkFilesBtn.disabled = true;
@@ -235,11 +266,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             showNotification('Файлы успешно связаны', 'success');
             filesWereLinked = true;
-            document.querySelector('.download-card p').textContent = 'Скачать output.csv';
+            // Активируем кнопки скачивания после успешного связывания
+            Object.keys(downloadButtons).forEach(buttonId => {
+                const button = document.getElementById(buttonId);
+                if (button) button.disabled = false;
+            });
             loadExistingFiles();
         })
         .catch(error => {
-            console.error('Ошибка при связывании файлов:', error);
             showNotification('Ошибка при связывании файлов', 'error');
         })
         .finally(() => {
@@ -251,3 +285,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Загрузка существующих файлов при загрузке страницы
     loadExistingFiles();
 });
+
+// Функция для показа уведомлений
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    if (!notification) {
+        console.error('Элемент уведомления не найден');
+        return;
+    }
+
+    notification.style.display = 'block';
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+
+    if (typeof animateNotification === 'function') {
+        animateNotification(notification);
+    } else {
+        notification.style.visibility = 'visible';
+        notification.style.opacity = '1';
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.visibility = 'hidden';
+        }, 3000);
+    }
+}
