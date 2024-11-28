@@ -227,33 +227,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Обработчик для кнопки скачивания
-    downloadBtn.addEventListener('click', function() {
-        showNotification('Загрузка началась', 'success'); // Уведомление о начале загрузки
-
-        fetch('/download/csv')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Файл не найден');
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = "output.csv";
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                a.remove();
-                showNotification('Файл успешно скачан', 'success');
-            })
-            .catch(error => {
-                showNotification('Ошибка при скачивании файла', 'error');
-            });
-    });
-
     // Обработчик для кнопки связывания файлов
     linkFilesBtn.addEventListener('click', function() {
         linkingLoader.classList.remove('d-none');
