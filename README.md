@@ -68,12 +68,20 @@
 `tzdata`,
 `uvicorn`
 
-### 2. **Установка**
+### 2. **Установка и запуск**
+#### **Python**
    ```bash
    git clone https://github.com/OptonGroup/T1_hackathon.git
    cd voyager
    pip install -r requirements.txt
+   python server.py
+   http://127.0.0.1:8000/   
    ```
+---
+#### **Docker**
+```
+писать тута
+```
 ---
 # Скриншоты продукта
 
