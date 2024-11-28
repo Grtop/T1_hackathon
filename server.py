@@ -223,7 +223,7 @@ async def link_files():
 
 @app.get("/download/")
 async def download_file():
-    file_path = "good_files/output.csv"
+    file_path = "good_files\output.csv"
     if os.path.exists(file_path):
         return FileResponse(
             path=file_path,

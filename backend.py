@@ -40,58 +40,58 @@ class backend:
         self.data.loc[~valid_mask, 'client_bday'] = pd.NA
         
         
-        ## Обрабатываем код статуса резидента пользователя:
-        #   - строка состоил из Д или Н
-        valid_mask = (
-            self.data['client_resident_cd'].notna() &
-            ((self.data['client_resident_cd'].str.strip() == 'Д') | (self.data['client_resident_cd'].str.strip() == 'Н'))
-        )
-        self.data.loc[~valid_mask, 'client_resident_cd'] = pd.NA
+        # ## Обрабатываем код статуса резидента пользователя:
+        # #   - строка состоил из Д или Н
+        # valid_mask = (
+        #     self.data['client_resident_cd'].notna() &
+        #     ((self.data['client_resident_cd'].str.strip() == 'Д') | (self.data['client_resident_cd'].str.strip() == 'Н'))
+        # )
+        # self.data.loc[~valid_mask, 'client_resident_cd'] = pd.NA
     
 
-        ## Обрабатываем пол пользователя:
-        #   - строка состоил из М или Ж
-        valid_mask = (
-            self.data['client_gender'].notna() &
-            ((self.data['client_gender'].str.strip() == 'М') | (self.data['client_gender'].str.strip() == 'Ж'))
-        )
-        self.data.loc[~valid_mask, 'client_gender'] = pd.NA
+        # ## Обрабатываем пол пользователя:
+        # #   - строка состоил из М или Ж
+        # valid_mask = (
+        #     self.data['client_gender'].notna() &
+        #     ((self.data['client_gender'].str.strip() == 'М') | (self.data['client_gender'].str.strip() == 'Ж'))
+        # )
+        # self.data.loc[~valid_mask, 'client_gender'] = pd.NA
         
         
-        ## Обрабатываем семейное положение пользователя:
-        #   - строка состоил из Д или Н
-        valid_mask = (
-            self.data['client_marital_cd'].notna() &
-            ((self.data['client_marital_cd'].str.strip() == 'Д') | (self.data['client_marital_cd'].str.strip() == 'Н'))
-        )
-        self.data.loc[~valid_mask, 'client_marital_cd'] = pd.NA
+        # ## Обрабатываем семейное положение пользователя:
+        # #   - строка состоил из Д или Н
+        # valid_mask = (
+        #     self.data['client_marital_cd'].notna() &
+        #     ((self.data['client_marital_cd'].str.strip() == 'Д') | (self.data['client_marital_cd'].str.strip() == 'Н'))
+        # )
+        # self.data.loc[~valid_mask, 'client_marital_cd'] = pd.NA
         
         
-        ## Обрабатываем уровень образования пользователя:
-        #   - строка состоил из Д или Н
-        valid_mask = (
-            self.data['client_graduate'].notna() &
-            ((self.data['client_graduate'].str.strip() == 'Д') | (self.data['client_graduate'].str.strip() == 'Н'))
-        )
-        self.data.loc[~valid_mask, 'client_graduate'] = pd.NA
+        # ## Обрабатываем уровень образования пользователя:
+        # #   - строка состоил из Д или Н
+        # valid_mask = (
+        #     self.data['client_graduate'].notna() &
+        #     ((self.data['client_graduate'].str.strip() == 'Д') | (self.data['client_graduate'].str.strip() == 'Н'))
+        # )
+        # self.data.loc[~valid_mask, 'client_graduate'] = pd.NA
         
         
-        ## Обрабатываем статус военной службы пользователя:
-        #   - строка состоил из Д или Н
-        valid_mask = (
-            self.data['client_mil_cd'].notna() &
-            ((self.data['client_mil_cd'].str.strip() == 'Д') | (self.data['client_mil_cd'].str.strip() == 'Н'))
-        )
-        self.data.loc[~valid_mask, 'client_mil_cd'] = pd.NA
+        # ## Обрабатываем статус военной службы пользователя:
+        # #   - строка состоил из Д или Н
+        # valid_mask = (
+        #     self.data['client_mil_cd'].notna() &
+        #     ((self.data['client_mil_cd'].str.strip() == 'Д') | (self.data['client_mil_cd'].str.strip() == 'Н'))
+        # )
+        # self.data.loc[~valid_mask, 'client_mil_cd'] = pd.NA
         
         
-        ## Обрабатываем статус заграничного паспорта пользователя:
-        #   - строка состоил из Д или Н
-        valid_mask = (
-            self.data['client_zagran_cd'].notna() &
-            ((self.data['client_zagran_cd'].str.strip() == 'Д') | (self.data['client_zagran_cd'].str.strip() == 'Н'))
-        )
-        self.data.loc[~valid_mask, 'client_zagran_cd'] = pd.NA
+        # ## Обрабатываем статус заграничного паспорта пользователя:
+        # #   - строка состоил из Д или Н
+        # valid_mask = (
+        #     self.data['client_zagran_cd'].notna() &
+        #     ((self.data['client_zagran_cd'].str.strip() == 'Д') | (self.data['client_zagran_cd'].str.strip() == 'Н'))
+        # )
+        # self.data.loc[~valid_mask, 'client_zagran_cd'] = pd.NA
         
         
         ## Обрабатываем ИНН пользователя:
@@ -175,12 +175,12 @@ class backend:
         self.data.sort_values('update_date', ascending=False)
         self.data = self.data.replace({pd.NA: 'nan'})
         self.data = self.data.astype(str)
-        self.data = self.data.replace({pd.NA: 'nan'})
-
         
         
     def dfs(self, ind):
         self.used[ind] = 1
+        if self.data_list[ind][22] == '+7':
+            t = 1
         
         for i in range(47):
             if self.data_list[ind][-1] < self.ind_of_gold_row[i] and str(self.data_list[ind][i]) != 'nan':
@@ -250,7 +250,7 @@ class backend:
                 self.dfs(i)
                 lst.append(self.gold_row)
                 
-        with open('good_files\\first_hundred_rows.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        with open('good_files\\output.csv', 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(columns)
             writer.writerows(lst)
