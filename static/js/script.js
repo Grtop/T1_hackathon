@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
     downloadBtn.addEventListener('click', function() {
         showNotification('Загрузка началась', 'success'); // Уведомление о начале загрузки
 
-        fetch('/download/')
+        fetch('/download/csv')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Файл не найден');

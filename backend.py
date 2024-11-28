@@ -4,6 +4,7 @@ import re
 import csv
 import sys
 import os
+import numpy as np
 sys.setrecursionlimit(2147000000)
 
 class backend:
@@ -179,8 +180,6 @@ class backend:
         
     def dfs(self, ind):
         self.used[ind] = 1
-        if self.data_list[ind][22] == '+7':
-            t = 1
 
         for i in range(47):
             if self.data_list[ind][-1] < self.ind_of_gold_row[i] and str(self.data_list[ind][i]) != 'nan':
@@ -196,44 +195,55 @@ class backend:
         columns = self.data.columns
         self.data['index'] = range(len(self.data))
         
-        self.data_list = self.data.values.tolist()
+        # Convert data_list to numpy array
+        self.data_list = np.array(self.data.values)
         
-        lst1 = [
+        # Define arrays instead of lists
+        lst1 = np.array([
             [15],
             [16],
             [18],
             [19],
             [21],
             [22]
-        ]
-        lst2 = [
+        ])
+        
+        lst2 = np.array([
             [4, 5],
             [4, 34],
             [40, 41],
             [5, 34],
-        ]
+        ])
         
-        self.list_of_link = [
-            [] for i in range(len(self.data))
-        ]
+        # Initialize list_of_link as a list of empty lists
+        # (keeping as list since you're dynamically appending to it)
+        self.list_of_link = [[] for i in range(len(self.data))]
         
         for el in lst1:
             print(el)
-            self.data_list.sort(key=lambda x: str(x[el[0]]))
+            # Sort the numpy array
+            self.data_list = self.data_list[np.argsort(self.data_list[:, el[0]], kind='stable')]
             for i in range(len(self.data_list)-1):
-                if self.data_list[i][el[0]] == self.data_list[i+1][el[0]] and str(self.data_list[i][el[0]]) != 'nan':
-                    self.list_of_link[self.data_list[i][-1]].append(self.data_list[i+1][-1])
-                    self.list_of_link[self.data_list[i+1][-1]].append(self.data_list[i][-1])
+                if (self.data_list[i][el[0]] == self.data_list[i+1][el[0]] and 
+                    str(self.data_list[i][el[0]]) != 'nan'):
+                    self.list_of_link[int(self.data_list[i][-1])].append(int(self.data_list[i+1][-1]))
+                    self.list_of_link[int(self.data_list[i+1][-1])].append(int(self.data_list[i][-1]))
                     
         for el in lst2:
             print(el)
-            self.data_list.sort(key=lambda x: [str(x[el[0]]), str(x[el[1]])])
+            # Sort by multiple columns
+            sort_idx = np.lexsort((self.data_list[:, el[1]], self.data_list[:, el[0]]))
+            self.data_list = self.data_list[sort_idx]
+            
             for i in range(len(self.data_list)-1):
-                if self.data_list[i][el[0]] == self.data_list[i+1][el[0]] and self.data_list[i][el[1]] == self.data_list[i+1][el[1]] and str(self.data_list[i][el[0]]) != 'nan' and str(self.data_list[i][el[1]]) != 'nan':
-                    self.list_of_link[self.data_list[i][-1]].append(self.data_list[i+1][-1])
-                    self.list_of_link[self.data_list[i+1][-1]].append(self.data_list[i][-1])
+                if (self.data_list[i][el[0]] == self.data_list[i+1][el[0]] and 
+                    self.data_list[i][el[1]] == self.data_list[i+1][el[1]] and 
+                    str(self.data_list[i][el[0]]) != 'nan' and 
+                    str(self.data_list[i][el[1]]) != 'nan'):
+                    self.list_of_link[int(self.data_list[i][-1])].append(int(self.data_list[i+1][-1]))
+                    self.list_of_link[int(self.data_list[i+1][-1])].append(int(self.data_list[i][-1]))
                     
-        self.data_list.sort(key=lambda x: x[-1])
+        self.data_list = self.data_list[np.argsort(self.data_list[:, -1], kind='stable')]
         
         
         self.used = [0 for i in range(len(self.data))]
