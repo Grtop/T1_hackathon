@@ -129,7 +129,7 @@ async def upload_file(file: UploadFile = File(...)):
         # Проверяем есть ли дата/время в конце имени файла
         if not re.search(r'\d{8}_\d{6}$', base_name):
             # Если нет - обрезаем имя до 8 символов и добавляем дату/время
-            base_name = base_name[:8] if len(base_name) > 8 else base_name
+            base_name = base_name[:16] if len(base_name) > 16 else base_name
             new_filename = f"{base_name}_{timestamp}{extension}"
         else:
             new_filename = file.filename
