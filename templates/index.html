@@ -34,7 +34,24 @@
     <div class="row w-100">
         <div class="col-12 text-center mb-4 d-flex justify-content-center">
             <img src="/static/img/ico/ico_2.png" class="img-fluid rotate-image" style="height: 12vh;" alt="Voyager Logo">
-            <img src="/static/img/ico/voyager_logo_only_text.png" class="img-fluid" style="height: 12vh;" alt="Voyager Logo">
+            <img src="/static/img/ico/voyager_logo_only_text.png" class="img-fluid slide-down" style="height: 12vh;" alt="Voyager Logo">
+            <style>
+                .slide-down {
+                    position: relative;
+                    animation: slideDown 1s ease-out;
+                }
+
+                @keyframes slideDown {
+                    from {
+                        top: -100px;
+                        opacity: 0;
+                    }
+                    to {
+                        top: 0;
+                        opacity: 1;
+                    }
+                }
+            </style>
         </div>
         <p></p>
         <p></p>
