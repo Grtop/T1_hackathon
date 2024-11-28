@@ -12,6 +12,13 @@
     <link rel="icon" href="/static/img/ico/ico.png" type="image/png">
 </head>
 <body>
+    <div class="triangles-container"></div>
+        <div class="triangle"></div>
+        <div class="triangle"></div>
+        <div class="triangle"></div>
+        <div class="triangle"></div>
+        <div class="triangle"></div>
+    </div>
 <p></p>
 <p></p>
 <p></p>
@@ -61,9 +68,17 @@
                 <div class="card-body text-center">
                     <i class="bi bi-download fa-3x mb-3"></i>
                     <p>Скачать обработанные файлы</p>
-                    <button type="button" class="btn btn-primary" id="downloadBtn">
-                        Скачать файлы
-                    </button>
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-primary me-2" id="downloadCsvBtn" style="font-size: 0.7em;">
+                            Скачать CSV
+                        </button>
+                        <button type="button" class="btn btn-primary me-2" id="downloadZipBtn" style="font-size: 0.7em;">
+                            Скачать ZIP
+                        </button>
+                        <button type="button" class="btn btn-primary" id="downloadRarBtn" style="font-size: 0.7em;">
+                            Скачать RAR
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="mt-3">
