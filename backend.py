@@ -197,7 +197,7 @@ class backend:
                 self.dfs(i)
                 lst.append(self.gold_row)
                 
-        with open('good_files\\output.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        with open(os.path.join('good_files', 'output.csv'), 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(columns)
             writer.writerows(lst)
